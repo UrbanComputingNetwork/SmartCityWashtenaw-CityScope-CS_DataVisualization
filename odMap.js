@@ -26,8 +26,8 @@ var svg = d3.select("#odMapContainer").append("svg")
  
 svg.append("circle")
 .attr("r", outerRadius);
-d3.csv("./input/prepared/zones.csv", function(zones) {
-	d3.json("./input/prepared/matrix.json", function(matrix) {
+d3.csv("./input/Andorra/zones.csv", function(zones) {
+	d3.json("./input/Andorra/matrix.json", function(matrix) {
 	 
 	// Compute the chord layout.
 	layout.matrix(matrix);
