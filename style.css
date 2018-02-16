@@ -1,0 +1,25 @@
+#total {font-size: 50px;}
+
+.dc-chart g.row text {fill: black;}
+
+/*Chord Diagram*/
+#circle circle {fill: none; /*background white*/
+pointer-events: all; /*prevents flickering*/
+}
+
+.chart-title {font: 12px helvetica;
+}
+ 
+path.chord {stroke: #000; stroke-width: .5px;
+/*edges of the chords*/
+}
+ 
+#circle:hover path.fade {display: none;
+/*fade paths with the class 'fade'. When a zone is hovered over, all others are given the class fade*/
+}
+
+svg {font: 12px helvetica;
+	/*font of zone names*/
+}
+ 
+/*Chord Diagram*/
