@@ -1,5 +1,5 @@
 queue()
-    .defer(d3.json, "./input/Andorra/pointData.json")
+    .defer(d3.json, "./input/Andorra/stayData.json")
     .await(drawCharts);
 
 function drawCharts(error, pointData) {
