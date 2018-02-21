@@ -1,5 +1,7 @@
+var inputPath ="./input/Andorra/";
 queue()
-    .defer(d3.json, "./input/Andorra/stayData.json")
+    // .defer(d3.json, "./input/Andorra/stayData.json")
+    .defer(d3.json, inputPath+'stayData.json')
     .await(drawCharts);
 
 function drawCharts(error, pointData) {
@@ -162,7 +164,7 @@ function intervalTreeGroup(tree, firstDate, lastDate) {
       });
 
     var map = L.map('map');
-    map.setView([42.5, 1.5], 10);
+    map.setView([42.5, 1.5], 11);
 
 	var drawMap = function(){
 
