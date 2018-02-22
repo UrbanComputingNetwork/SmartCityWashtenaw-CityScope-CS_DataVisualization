@@ -121,7 +121,7 @@
     <!-- Horizontal Line -->
     <hr>
     <div class="row">
-    <!-- OD chord diagram --> 
+      <!-- OD chord diagram --> 
       <div class="col-sm-6">
         <div class="chart-wrapper">
             <div class="chart-title">
@@ -132,9 +132,27 @@
             </div>
         </div>
       </div>
+      <!-- OD chord diagram  -->
+      <!-- Date Controls --> 
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+                Dates
+          </div>
+          <div class="chart-stage">
+            <select name="dateDD" id="dateDD">
+            </select>
+            <select name="compareDD" id="compareDD">
+              <option value="None">None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    <!-- Date Controls  --> 
     </div>
-    <!-- OD chord diagram  --> 
-    </div>
+     
+    
+  </div>
 
   </div>
   <!-- Horizontal Line -->
@@ -151,8 +169,9 @@
   <script src="./libs/leaflet.js"></script>
   <script src="./libs/leaflet-heat.js"></script>
   <script src="./libs/keen.min.js"></script>
-  <script src='./main.js' type='text/javascript'></script>
   <script src='./odMap.js' type='text/javascript'></script>
+  <script src='./main.js' type='text/javascript'></script>
+  
 
 
 </body>

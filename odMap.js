@@ -1,3 +1,4 @@
+function drawOdMap(primaryDate){
 var width = 720,
 height = 720,
 outerRadius = Math.min(width, height) / 2 - 10,
@@ -17,6 +18,7 @@ var layout = d3.layout.chord()
 var path = d3.svg.chord()
 .radius(innerRadius);
  
+d3.selectAll("#odMapContainer svg").remove();
 var svg = d3.select("#odMapContainer").append("svg")
 .attr("width", width)
 .attr("height", height)
@@ -29,7 +31,7 @@ svg.append("circle")
 // d3.csv("./input/Andorra/zones.csv", function(zones) {
 // 	d3.json("./input/Andorra/matrix.json", function(matrix) {
 d3.csv(inputPath+"zones.csv", function(zones) {
-	d3.json(inputPath + "matrix.json", function(matrix) {	 
+	d3.json(inputPath+primaryDate+ "/matrix.json", function(matrix) {	 
 	// Compute the chord layout.
 	layout.matrix(matrix);
 	 
@@ -94,3 +96,5 @@ d3.csv(inputPath+"zones.csv", function(zones) {
 	}
 	});
 });
+
+}
