@@ -20,30 +20,48 @@ function intervalTreeGroup(tree, firstDate, lastDate) {
         };
     }
 function drawCharts(error, pointData, compareData) {
-    
-    
+        
     var records = pointData['data'],  compareRecords=compareData['data'];
     var multiplier= parseInt(pointData['multiplier']), compareMultiplier= parseInt(compareData['multiplier']);
     var dateFormat = d3.time.format("%Y%m%d %H:%M:%S");
 
+
     // create all the dimensions including a new starthour dimension
-
-    
-
-    // 
     
     records.forEach(function(d) {
       d["startTimestamp"] = dateFormat.parse(d["startTimestamp"]);
       d["endTimestamp"] = dateFormat.parse(d["endTimestamp"]);
       d["startTimestamp"].setSeconds(0);
       d["endTimestamp"].setSeconds(0);
+      // d["startHour"].setSeconds(0);
+      // d["startHour"].setMinutes(0);
       d['interval']=[d['startTimestamp'].getTime(), d['endTimestamp'].getTime()];
+      d['weight']=1;
     });
 
-  
+    console.log(records[records.length/2]['startTimestamp'])
+    var dayOfInterest=records[records.length/2]['startTimestamp'].getDate();
+    console.log(dayOfInterest)
 
-    
     var ndx = crossfilter(records);
+
+    if (multiplier!=compareMultiplier){
+      console.log('More than one date selected')
+      compareRecords.forEach(function(d) {
+      d["startTimestamp"] = dateFormat.parse(d["startTimestamp"]);
+      d["endTimestamp"] = dateFormat.parse(d["endTimestamp"]);
+      d["startTimestamp"].setSeconds(0);
+      d["startTimestamp"].setDate(dayOfInterest);
+      d["endTimestamp"].setSeconds(0);
+      d["endTimestamp"].setDate(dayOfInterest);
+      // d["startHour"].setSeconds(0);
+      // d["startHour"].setMinutes(0);
+      d['interval']=[d['startTimestamp'].getTime(), d['endTimestamp'].getTime()];
+      d['weight']=-1;
+    });
+      ndx.add(compareRecords);
+    }
+
     var dateDim = ndx.dimension(function(d) { return d["startTimestamp"]; });
     var minDate = dateDim.bottom(1)[0]["startTimestamp"];
     var maxDate = dateDim.top(1)[0]["endTimestamp"];
@@ -68,33 +86,64 @@ function drawCharts(error, pointData, compareData) {
     var nationDim = ndx.dimension(function(d) { return d["Nation"]; });
     var locationDim = ndx.dimension(function(d) { return d["Location"]; });
     var allDim = ndx.dimension(function(d) {return d;});
+    var weightDim = ndx.dimension(function(d) {return d["weight"];});
 
-    if (multiplier!=compareMultiplier){
-      console.log('More than one date selected')
-      // This is a hack whereby if None is selected, the primary day data is passed to drawCharts twice- 
-      // as both the primary and compare day data. Assuming no 2 days will have the same multiplier.
-      // This needs to be fixed later
-
-      // create new crossfilter for the compare data
-      // for each hour, nation and location
-      // filter both datasets
-      // find the difference in size
-      // if >0
-      //     calculate the cutoff in the uniform dist U (=difference/sizePrimary)
-      //     filter by cutoff (U < cutoff)
-      //     remove the filtered data
-      //     clear the filters
-    }
-
-     
-    // use ending times
-
-    var numRecordsByDate = dateDim.group();
     var cellGroup = cellDim.group();
     var nationGroup = nationDim.group();
     var locationGroup = locationDim.group();
     var obsPerMinuteGroup = intervalTreeGroup(obsPerMinuteTree.value(), minDate, maxDate)
+    var weightGroup = weightDim.group();
     var all = ndx.groupAll();
+
+
+
+    // if (multiplier!=compareMultiplier){
+    //   console.log('More than one date selected')
+
+      // This is a hack whereby if None is selected, the primary day data is passed to drawCharts twice- 
+      // as both the primary and compare day data. Assuming no 2 days will have the same multiplier.
+      // This needs to be fixed later
+    //   compareRecords.forEach(function(d) {
+    //   d["startTimestamp"] = dateFormat.parse(d["startTimestamp"]);
+    //   d["endTimestamp"] = dateFormat.parse(d["endTimestamp"]);
+    //   d["startTimestamp"].setSeconds(0);
+    //   d["endTimestamp"].setSeconds(0);
+    //   // d["startHour"].setSeconds(0);
+    //   // d["startHour"].setMinutes(0);
+    //   d['interval']=[d['startTimestamp'].getTime(), d['endTimestamp'].getTime()];
+    // });
+
+    //   var ndxC = crossfilter(compareRecords);
+    //   console.log(ndxC.groupAll().value())
+
+    //   var intervalDimensionC = ndxC.dimension(function(d) {return d.interval;})
+    //   var obsPerMinuteTreeC = ndxC.groupAll().reduce(
+    //               function(v, d) {
+    //                   v.insert(d.interval);
+    //                   return v;
+    //               },
+    //               function(v, d) {
+    //                   v.remove(d.interval);
+    //                   return v;
+    //               },
+    //               function() {
+    //                   return lysenkoIntervalTree(null);
+    //               }
+    //           )
+
+    //   var cellDimC = ndxC.dimension(function(d) { return d["Cell"]; });
+    //   var nationDimC = ndxC.dimension(function(d) { return d["Nation"]; });
+    //   var locationDimC = ndxC.dimension(function(d) { return d["Location"]; });
+    //   var allDimC = ndxC.dimension(function(d) {return d;});
+
+    //   var cellGroupC = cellDimC.group();
+    //   var nationGroupC = nationDimC.group();
+    //   var locationGroupC = locationDimC.group();
+    //   var obsPerMinuteGroupC = intervalTreeGroup(obsPerMinuteTreeC.value(), minDate, maxDate)
+    //   var allC = ndxC.groupAll();
+
+        
+     // }
 
 
     var total = dc.numberDisplay("#total");
@@ -195,27 +244,62 @@ function drawCharts(error, pointData, compareData) {
 
       //HeatMap
       var geoData = [];
+      var geoDataNeg=[];
       _.each(allDim.top(Infinity), function (d) {
-        geoData.push([d["Latitude"], d["Longitude"], 1]);
+        geoData.push([d["Latitude"], d["Longitude"], 0.5*d['weight']]);
+        geoDataNeg.push([d["Latitude"], d["Longitude"], -0.5*d['weight']]);
           });
+      
+      var heatNeg = L.heatLayer(geoDataNeg,{
+        maxZoom:1, max:2, radius: 10, blur: 20, gradient:{0: 'green', 1: 'blue'}
+      }).addTo(map);
       var heat = L.heatLayer(geoData,{
-        radius: 10, blur: 20, maxZoom: 1
+        maxZoom:1, max:2, radius: 10, blur: 20, gradient:{0: 'green', 0.5: 'yellow', 1: 'red'}
       }).addTo(map);
 
     };
 
     //Draw Map
     drawMap();
+    weightDim.filter(1)
 
     //Update the heatmap if any dc chart get filtered
     dcCharts = [timeChart, cellChart, nationChart, locationChart];
 
+    // timeChart.on("filtered", function(chart){
+    //   intervalDimensionC.filter(chart.filters())
+    //   console.log(ndxC.groupAll().value())
+    //   drawMap();
+    // }
+    // );
+
+    // nationChart.on("filtered", function(chart){
+    //   nationDimC.filter(chart.filters())
+    //   console.log(ndxC.groupAll().value())
+    //   drawMap();
+    // }
+    // );
+
+    // cellChart.on("filtered", function(chart){
+    //   cellDimC.filter(chart.filters())
+    //   console.log(ndxC.groupAll().value())
+    //   drawMap();
+    // }
+    // );
+
+    // locationChart.on("filtered", function(chart){
+    //   locationDimC.filter(chart.filters())
+    //   console.log(ndxC.groupAll().value())
+    //   drawMap();
+    // }
+    // );
+
     _.each(dcCharts, function (dcChart) {
       dcChart.on("filtered", function (chart, filter) {
-        // map.eachLayer(function (layer) {
-        //  map.removeLayer(layer)
-        // }); 
+        
+        weightDim.filterAll()
         drawMap();
+        weightDim.filter(1)
       });
     });
 
@@ -236,6 +320,18 @@ $(dateOptions).each(function(i, v){
 // $inputDate.append($("<option>", { value: "opt", html: "opt" }));
 document.getElementById("dateDD").onchange = function() {reDraw()};
 document.getElementById("compareDD").onchange = function() {reDraw()};
+
+var radSlider = document.getElementById("radRange");
+var radOutput = document.getElementById("radVal");
+radOutput.innerHTML = radSlider.value;
+
+
+var blurSlider = document.getElementById("blurRange");
+var blurOutput = document.getElementById("blurVal");
+blurOutput.innerHTML = blurSlider.value;
+
+
+
 
 var map = L.map('map');
 map.setView([42.5, 1.5], 11);

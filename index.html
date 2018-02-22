@@ -142,10 +142,24 @@
           <div class="chart-stage">
             <select name="dateDD" id="dateDD">
             </select>
+            <h2> compare to </h2>
             <select name="compareDD" id="compareDD">
               <option value="None">None</option>
             </select>
           </div>
+        </div>
+        <div id="controls">
+          <h1>Radius</h1>
+            <div class="slidecontainer">
+              <input type="range" min="1" max="30" value="15" class="slider" id="radRange">
+              <p>Value: <span id="radVal"></span></p>
+            </div>
+
+          <h1>Blur</h1>
+            <div class="slidecontainer">
+              <input type="range" min="1" max="30" value="15" class="slider" id="blurRange">
+              <p>Value: <span id="blurVal"></span></p>
+            </div>
         </div>
       </div>
     <!-- Date Controls  --> 
